@@ -48,7 +48,7 @@ class Contract(NetBoxModel):
     blank=True,
   )
   supplier = models.ForeignKey(
-    Supplier,
+    to=Supplier,
     on_delete=models.PROTECT,
     related_name='contracts',
     blank=True,

@@ -14,7 +14,11 @@
             </tr>
             <tr>
               <th scope="row">Supplier</th>
-              <td>{{ object.supplier }}</td>
+              <td><a href="{{ object.supplier.get_absolute_url }}">{{ object.supplier }}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Tenant</th>
+              <td><a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a></td>
             </tr>
             <tr>
               <th scope="row">Status</th>
@@ -34,6 +38,11 @@
       {% include 'inc/panels/custom_fields.html' %}
     </div>
     <div class="col col-md-6">
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+    </div>
+  </div>
+  <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">
           Devices
@@ -48,5 +57,4 @@
         </div>
       </div>
     </div>
-  </div>
 {% endblock content %}
