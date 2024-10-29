@@ -36,7 +36,6 @@ class ContractListSideTable(NetBoxTable):
   
   class Meta(NetBoxTable.Meta):
     model = Device
-    exclude = ('actions',)
     fields = ('pk', 'id', 'name', 'status', 'start_date', 'end_date','remove')
     default_columns = ('name', 'status', 'start_date', 'end_date')
     
