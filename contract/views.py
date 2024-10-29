@@ -9,10 +9,14 @@ class ContractView(generic.ObjectView):
   
   # GET DEVICES RELATED TO A CONTRACT
   def get_extra_context(self, request, instance):
+    devices = Device.objects.all()
     contract_devices = instance.devices.all()
-    table = tables.ContractListSideTable(contract_devices)
+    selected_devices_table = tables.ContractListSideTable(contract_devices)
+    non_contract_devices = [device for device in devices if device not in contract_devices]
+    non_contract_table = tables.ContractListTable(non_contract_devices)
     return {
-      'devices_table': table,
+      'selected_devices_table': selected_devices_table,
+      'non_contract_table': non_contract_table,
     }
   
 class ContractListView(generic.ObjectListView):
