@@ -69,6 +69,21 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <div class="filter-select-list d-flex gap-2 mb-3">
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle  fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">Add filter</button>
+              <ul class="dropdown-menu filter-list">
+                <h5 class="px-2 my-2" style="color:#00857D">Filter By:</h5>
+                <li><a class="dropdown-item filter fs-5">Site</a></li>
+                <li><a class="dropdown-item filter fs-5">Role</a></li>
+                <li><a class="dropdown-item filter fs-5">Device Type</a></li>
+              </ul>
+              <ul class="dropdown-menu filter-text">
+                <li><input class="filter-input fs-5 m-2 p-1 rounded-1" type="text" placeholder="Enter filter text" style="border-color:#00857D"></li>
+              </ul>
+            </div>
+          </div>
+          
           <div class="col">
             <div class="card">
               <h5 class="card-header">
@@ -83,13 +98,91 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Save</button>
         </div>
       </div>
     </div>
   </div>
+  
 {% endblock content %}
 
 {% block javascript %}
+<script>
+  const filterBtn = document.querySelectorAll(".filter");
+  const filterList = document.querySelector(".filter-list");
+  const filterText = document.querySelector(".filter-text");
+  const filterInput = document.querySelector(".filter-input");
+  const filterSelectList = document.querySelector(".filter-select-list");
+  const allDevices = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
+  let selectedFilter;
+  const activeFilters = [];
+
+  function removeTag(e) {
+    const tag = e.target;
+    const [category, value] = tag.textContent.split(": ");
+
+    const index = activeFilters.findIndex(filter => filter.category === category && filter.value === value);
+    activeFilters.splice(index, 1);  
+    tag.remove(); 
+    filterTable(); 
+  }
+
+  function handleCreateTag(e) {
+    if (e.key === "Enter") {
+        filterText.classList.remove("show");
+        
+        const value = filterInput.value.trim();
+        if (value === "") return; 
+
+        const newTag = document.createElement("button");
+        newTag.classList = "filter-tag btn btn-outline-secondary fs-5 dropdown";
+        newTag.textContent = `${selectedFilter}: ${value}`;
+        newTag.addEventListener("click", removeTag);
+        filterSelectList.appendChild(newTag);
+        
+        activeFilters.push({ category: selectedFilter, value });
+        filterInput.value = "";
+        filterTable();
+    }
+  }
+
+  // Filter rows in Device table
+  function filterTable() {
+    allDevices.forEach(row => {
+      const cells = row.querySelectorAll("td");
+      let isVisible = true;
+
+      activeFilters.forEach(filter => {
+        if (filter.category === "Site") {
+          isVisible = cells[3].textContent.includes(filter.value);
+        } else if (filter.category === "Role") {
+          isVisible = cells[6].textContent.includes(filter.value);
+        } else if (filter.category === "Device Type") {
+          isVisible = cells[8].textContent.includes(filter.value);
+        }
+      });
+
+      row.style.display = isVisible ? "" : "none";
+    });
+  }
+
+  // Active filter input field
+  filterBtn.forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      selectedFilter = btn.innerHTML;
+      filterList.classList.remove("show");
+      filterText.classList.add("show");
+
+      filterText.removeEventListener("keyup", handleCreateTag);
+      filterText.addEventListener("keyup", handleCreateTag);
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!filterList.contains(event.target) && !filterText.contains(event.target)) {
+      filterText.classList.remove("show");
+    }
+  });
+
+</script>
 {% endblock %}
