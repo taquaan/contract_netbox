@@ -1,4 +1,7 @@
-from django.shortcuts import get_object_or_404, render
+import json
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from netbox.views import generic
 from dcim.models import Device
 from . import models, tables, forms, filtersets
@@ -59,6 +62,15 @@ class SupplierEditView(generic.ObjectEditView):
   
 class SupplierDeleteView(generic.ObjectDeleteView):
   queryset = models.Supplier.objects.all()
-  
-def add_devices_to_contract(request, contract_id):
-  queryset = Device.objects.all()
+
+@require_http_methods(["POST"])
+def add_device_to_contract(request, contract_id):
+  try:
+    data = json.loads(request.body)
+    device_id = data.get("device_id")
+    contract = get_object_or_404(models.Contract, pk=contract_id)
+    device = get_object_or_404(Device, pk=device_id)
+    contract.devices.add(device)
+    return JsonResponse({"success":True, "message": "Device added successfully"})
+  except Exception as e:
+    return JsonResponse({"success":False, "error": str(e), "status": 400})

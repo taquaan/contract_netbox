@@ -5,7 +5,7 @@ from dcim.models import Device
 class CustomActionsColumn(ActionsColumn):
   def __init__(self, *args, **kwargs):
     extra_buttons = '''
-    <a class="btn btn-sm btn-success" href="#" contract_id=record.pk %}" aria-label="Add">
+    <a class="add-device-contract btn btn-sm btn-success" device_id={{record.pk}} %}" aria-label="Add">
         <i class="mdi mdi-plus"></i> Add
     </a>
     '''
