@@ -13,7 +13,7 @@ class ContractView(generic.ObjectView):
     contract_devices = instance.devices.all()
     selected_devices_table = tables.ContractListSideTable(contract_devices)
     non_contract_devices = [device for device in devices if device not in contract_devices]
-    non_contract_table = tables.ContractListTable(non_contract_devices)
+    non_contract_table = tables.DeviceModalTable(non_contract_devices)
     return {
       'selected_devices_table': selected_devices_table,
       'non_contract_table': non_contract_table,
