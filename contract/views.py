@@ -1,6 +1,8 @@
+from django.shortcuts import get_object_or_404, render
 from netbox.views import generic
 from dcim.models import Device
 from . import models, tables, forms, filtersets
+from contract.custom.custom_table import CustomNetBoxTable
 
 # CONTRACTS
 class ContractView(generic.ObjectView):
@@ -57,3 +59,6 @@ class SupplierEditView(generic.ObjectEditView):
   
 class SupplierDeleteView(generic.ObjectDeleteView):
   queryset = models.Supplier.objects.all()
+  
+def add_devices_to_contract(request, contract_id):
+  queryset = Device.objects.all()

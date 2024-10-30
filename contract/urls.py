@@ -22,4 +22,7 @@ urlpatterns = (
     path('suppliers/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='supplier_changelog', kwargs={
         'model': models.Supplier
     }),
+    
+    # ADD DEVICES TO CONTRACT
+    path('contracts/<int:contract_id>/add-device/', views.add_devices_to_contract, name='add_device_to_contract'),
 )
