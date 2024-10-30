@@ -3,6 +3,7 @@ from netbox.tables import NetBoxTable
 
 from contract.models import Contract, Supplier
 from dcim.models import Device
+from contract.custom.custom_table import CustomActionsColumn, CustomNetBoxTable
 
 class ContractListTable(NetBoxTable):
   name = tables.Column(
@@ -39,7 +40,7 @@ class ContractListSideTable(NetBoxTable):
     fields = ('pk', 'id', 'name', 'status', 'start_date', 'end_date','remove')
     default_columns = ('name', 'status', 'start_date', 'end_date')
     
-class DeviceModalTable(NetBoxTable):
+class DeviceModalTable(CustomNetBoxTable):
   name = tables.Column(
     linkify=True
   )
@@ -52,8 +53,6 @@ class DeviceModalTable(NetBoxTable):
   device_type = tables.Column(
     linkify=True
   )
-  class Meta(NetBoxTable.Meta):
+  class Meta(CustomNetBoxTable.Meta):
     model = Device
-    fields = ('pk', 'id', 'name', 'status', 'tenant', 'site','location', 'rack', 'role', 'manufacturer', 'device_type')
-    default_columns = ('name', 'status', 'tenant', 'site','location', 'rack', 'role', 'manufacturer', 'device_type')
     
