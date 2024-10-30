@@ -5,9 +5,10 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Access List</h5>
+        <h5 class="card-header">Access List <span class="contract-id" style="visibility: hidden">{{ object.id }}</span></h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
+
             <tr>
               <th scope="row">Name</th>
               <td>{{ object.name }}</td>
@@ -108,6 +109,7 @@
 
 {% block javascript %}
 <script>
+  const contractId = document.querySelector(".contract-id").innerHTML;
   const filterBtn = document.querySelectorAll(".filter");
   const filterList = document.querySelector(".filter-list");
   const filterText = document.querySelector(".filter-text");
@@ -184,5 +186,57 @@
     }
   });
 
+  function getCSRFToken() {
+    let csrfToken = null;
+    if (document.cookie) {
+        document.cookie.split(';').forEach(cookie => {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') csrfToken = decodeURIComponent(value);
+        });
+    }
+    return csrfToken;
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  // Add Device to Contract
+  document.querySelectorAll(".add-device-contract").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault(); 
+      const deviceId = btn.getAttribute("device_id"); 
+
+      fetch(`/plugins/contract/api/contracts/${contractId}/add_device/`, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie('csrftoken') 
+          },
+          body: JSON.stringify({ "device_id": deviceId })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert(data.message); 
+              location.reload();  
+          } else {
+              console.error("Error:", data.error);
+              alert(`Failed to add device: ${data.error}`);
+          }
+      })
+    });
+  });
 </script>
 {% endblock %}
