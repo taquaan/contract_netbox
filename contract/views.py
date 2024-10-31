@@ -3,9 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from netbox.views import generic
-from dcim.models import Device
+from dcim.models import Device, Site, DeviceRole, DeviceType
 from . import models, tables, forms, filtersets
-from contract.custom.custom_table import CustomNetBoxTable
 
 # CONTRACTS
 class ContractView(generic.ObjectView):
@@ -14,12 +13,18 @@ class ContractView(generic.ObjectView):
   
   # GET DEVICES RELATED TO A CONTRACT
   def get_extra_context(self, request, instance):
+    sites = Site.objects.all()
+    roles = DeviceRole.objects.all()
+    types = DeviceType.objects.all()
     devices = Device.objects.all()
     contract_devices = instance.devices.all()
-    selected_devices_table = tables.ContractListSideTable(contract_devices)
+    selected_devices_table = tables.SelectedDeviceBottomTable(contract_devices)
     non_contract_devices = [device for device in devices if device not in contract_devices]
     non_contract_table = tables.DeviceModalTable(non_contract_devices)
     return {
+      'sites': sites,
+      'roles': roles,
+      'types': types,
       'selected_devices_table': selected_devices_table,
       'non_contract_table': non_contract_table,
     }
@@ -72,5 +77,17 @@ def add_device_to_contract(request, contract_id):
     device = get_object_or_404(Device, pk=device_id)
     contract.devices.add(device)
     return JsonResponse({"success":True, "message": "Device added successfully"})
+  except Exception as e:
+    return JsonResponse({"success":False, "error": str(e), "status": 400})
+  
+@require_http_methods(["POST"])
+def remove_device_from_contract(request, contract_id):
+  try:
+    data = json.loads(request.body)
+    device_id = data.get("device_id")
+    contract = get_object_or_404(models.Contract, pk=contract_id)
+    device = get_object_or_404(Device, pk=device_id)
+    contract.devices.remove(device)
+    return JsonResponse({"success":True, "message": "Device remove successfully"})
   except Exception as e:
     return JsonResponse({"success":False, "error": str(e), "status": 400})

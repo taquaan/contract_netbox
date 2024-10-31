@@ -79,8 +79,23 @@
                 <li><a class="dropdown-item filter fs-5">Role</a></li>
                 <li><a class="dropdown-item filter fs-5">Device Type</a></li>
               </ul>
-              <ul class="dropdown-menu filter-text">
-                <li><input class="filter-input fs-5 m-2 p-1 rounded-1" type="text" placeholder="Enter filter text" style="border-color:#00857D"></li>
+              <ul class="dropdown-menu filter-values sites">
+                <h5 class="px-2 my-2" style="color:#00857D">Sites:</h5>
+                {% for site in sites %}
+                <li><a class="dropdown-item fs-5 values" href="#">{{ site.name }}</a></li>
+                {% endfor %}
+              </ul>
+              <ul class="dropdown-menu filter-values roles">
+                <h5 class="px-2 my-2" style="color:#00857D">Roles:</h5>
+                {% for role in roles %}
+                <li><a class="dropdown-item fs-5 values" href="#">{{ role.name }}</a></li>
+                {% endfor %}
+              </ul>
+              <ul class="dropdown-menu filter-values types">
+                <h5 class="px-2 my-2" style="color:#00857D">Device Type:</h5>
+                {% for type in types %}
+                <li><a class="dropdown-item fs-5 values" href="#">{{ type }}</a></li>
+                {% endfor %}
               </ul>
             </div>
           </div>
@@ -112,12 +127,23 @@
   const contractId = document.querySelector(".contract-id").innerHTML;
   const filterBtn = document.querySelectorAll(".filter");
   const filterList = document.querySelector(".filter-list");
-  const filterText = document.querySelector(".filter-text");
+  const filterValues = document.querySelectorAll(".filter-values");
+  const values = document.querySelectorAll(".values");
+  const filterSite = document.querySelector(".sites");
+  const filterRole = document.querySelector(".roles");
+  const filterType = document.querySelector(".types");
   const filterInput = document.querySelector(".filter-input");
   const filterSelectList = document.querySelector(".filter-select-list");
   const allDevices = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
   let selectedFilter;
   const activeFilters = [];
+
+  // Assign each value to create a new tag
+  values.forEach(value => {
+    value.addEventListener("click", (e) => {
+      handleCreateTag(e);
+    })
+  })
 
   function removeTag(e) {
     const tag = e.target;
@@ -130,22 +156,33 @@
   }
 
   function handleCreateTag(e) {
-    if (e.key === "Enter") {
-        filterText.classList.remove("show");
-        
-        const value = filterInput.value.trim();
-        if (value === "") return; 
+    e.preventDefault();
+    selectedFilterOption = e.target;
+    const value = selectedFilterOption.textContent.trim();
+    if (value === "") return;
 
-        const newTag = document.createElement("button");
-        newTag.classList = "filter-tag btn btn-outline-secondary fs-5 dropdown";
-        newTag.textContent = `${selectedFilter}: ${value}`;
-        newTag.addEventListener("click", removeTag);
-        filterSelectList.appendChild(newTag);
-        
-        activeFilters.push({ category: selectedFilter, value });
-        filterInput.value = "";
-        filterTable();
+    const existingTagIndex = activeFilters.findIndex(
+      filter => filter.category === selectedFilter
+    );
+    if (existingTagIndex !== -1) {
+      activeFilters.splice(existingTagIndex, 1);
+      const existingTagButton = Array.from(filterSelectList.children).find(tag =>
+        tag.textContent.startsWith(`${selectedFilter}: `)
+      );
+      if (existingTagButton) {
+        existingTagButton.remove();
+      }
     }
+
+    const newTag = document.createElement("button");
+    newTag.classList = "filter-tag btn btn-outline-secondary fs-5 dropdown";
+    newTag.textContent = `${selectedFilter}: ${value}`;
+    newTag.addEventListener("click", removeTag);
+    filterSelectList.appendChild(newTag);
+    selectedFilterOption.closest(".dropdown-menu").classList.remove("show");
+
+    activeFilters.push({ category: selectedFilter, value });
+    filterTable();
   }
 
   // Filter rows in Device table
@@ -171,31 +208,25 @@
   // Active filter input field
   filterBtn.forEach(btn => {
     btn.addEventListener("click", (event) => {
-      selectedFilter = btn.innerHTML;
+      selectedFilter = btn.innerHTML.trim();
       filterList.classList.remove("show");
-      filterText.classList.add("show");
-
-      filterText.removeEventListener("keyup", handleCreateTag);
-      filterText.addEventListener("keyup", handleCreateTag);
+      if (selectedFilter === "Site") {
+        filterSite.classList.toggle("show");
+      } else if (selectedFilter === "Role") {
+        filterRole.classList.add("show");
+      } else if (selectedFilter === "Device Type") {
+        filterType.classList.add("show");
+      }
     });
   });
 
   document.addEventListener("click", (event) => {
-    if (!filterList.contains(event.target) && !filterText.contains(event.target)) {
-      filterText.classList.remove("show");
-    }
+    filterValues.forEach(filterValue => {
+      if (!filterList.contains(event.target) && !filterValue.contains(event.target)) {
+        filterValue.classList.remove("show");
+      }
+    })
   });
-
-  function getCSRFToken() {
-    let csrfToken = null;
-    if (document.cookie) {
-        document.cookie.split(';').forEach(cookie => {
-            const [name, value] = cookie.trim().split('=');
-            if (name === 'csrftoken') csrfToken = decodeURIComponent(value);
-        });
-    }
-    return csrfToken;
-  }
 
   function getCookie(name) {
     let cookieValue = null;
@@ -219,6 +250,33 @@
       const deviceId = btn.getAttribute("device_id"); 
 
       fetch(`/plugins/contract/api/contracts/${contractId}/add_device/`, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie('csrftoken') 
+          },
+          body: JSON.stringify({ "device_id": deviceId })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert(data.message); 
+              location.reload();  
+          } else {
+              console.error("Error:", data.error);
+              alert(`Failed to add device: ${data.error}`);
+          }
+      })
+    });
+  });
+
+  // Remove device from contract
+  document.querySelectorAll(".remove-device-contract").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault(); 
+      const deviceId = btn.getAttribute("device_id"); 
+
+      fetch(`/plugins/contract/api/contracts/${contractId}/remove_device/`, {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
