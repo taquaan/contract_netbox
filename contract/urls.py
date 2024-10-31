@@ -25,4 +25,5 @@ urlpatterns = (
 
     # ADD DEVICES TO CONTRACT
     path("api/contracts/<int:contract_id>/add_device/", views.add_device_to_contract, name="add_device_to_contract"),
+    path("api/contracts/<int:contract_id>/remove_device/", views.remove_device_from_contract, name="remove_device_from_contract"),
 )
