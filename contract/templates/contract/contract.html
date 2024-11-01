@@ -48,8 +48,14 @@
       <h5 class="card-header">
         Devices
         <div class="card-actions">
-          <button class="btn btn-ghost-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          <button class="btn btn-ghost-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
             <span class="mdi mdi-plus-thick"></span> Add a Device
+          </button>
+          <button class="btn btn-ghost-cyan btn-sm me-2">
+            <span class="mdi mdi-import"></span> Import
+          </button>
+          <button class="btn btn-ghost-purple btn-sm" onclick="tableToExcel()">
+            <span class="mdi mdi-download"></span> Export
           </button>
         </div>
       </h5>
@@ -123,6 +129,7 @@
 {% endblock content %}
 
 {% block javascript %}
+<script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
   const contractId = document.querySelector(".contract-id").innerHTML;
   const filterBtn = document.querySelectorAll(".filter");
@@ -137,6 +144,14 @@
   const allDevices = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
   let selectedFilter;
   const activeFilters = [];
+
+  function tableToExcel() {
+    const table = document.querySelector('.object-list');
+    const worksheet = XLSX.utils.table_to_sheet(table);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Devices');
+    XLSX.writeFile(workbook, 'netbox_contract_devices.xlsx');
+  }
 
   // Assign each value to create a new tag
   values.forEach(value => {
