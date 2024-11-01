@@ -72,11 +72,12 @@ class SupplierDeleteView(generic.ObjectDeleteView):
 def add_device_to_contract(request, contract_id):
   try:
     data = json.loads(request.body)
-    device_id = data.get("device_id")
-    contract = get_object_or_404(models.Contract, pk=contract_id)
-    device = get_object_or_404(Device, pk=device_id)
-    contract.devices.add(device)
-    return JsonResponse({"success":True, "message": "Device added successfully"})
+    device_ids = data.get("device_ids")
+    for device_id in device_ids:
+      contract = get_object_or_404(models.Contract, pk=contract_id)
+      device = get_object_or_404(Device, pk=device_id)
+      contract.devices.add(device)
+    return JsonResponse({"success":True, "message": "Devices added successfully"})
   except Exception as e:
     return JsonResponse({"success":False, "error": str(e), "status": 400})
   
