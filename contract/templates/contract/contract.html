@@ -117,7 +117,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Save</button>
+          <button type="button" class="add-device btn btn-primary">Add Device</button>
         </div>
       </div>
     </div>
@@ -141,6 +141,7 @@
   const allDevices = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
   let selectedFilter;
   const activeFilters = [];
+  const selectedDeviceIds = [];
 
   function tableToExcel() {
     const table = document.querySelector('.object-list');
@@ -255,32 +256,33 @@
     return cookieValue;
   }
 
-  // Add Device to Contract
-  document.querySelectorAll(".add-device-contract").forEach(btn => {
-    btn.addEventListener("click", (event) => {
-      event.preventDefault(); 
-      const deviceId = btn.getAttribute("device_id"); 
-
-      fetch(`/plugins/contract/api/contracts/${contractId}/add_device/`, {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCookie('csrftoken') 
-          },
-          body: JSON.stringify({ "device_id": deviceId })
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              alert(data.message); 
-              location.reload();  
-          } else {
-              console.error("Error:", data.error);
-              alert(`Failed to add device: ${data.error}`);
-          }
-      })
-    });
-  });
+  // Add device to contract (checkbox)
+  document.querySelector(".add-device").addEventListener("click", () => {
+    document.querySelectorAll(".form-check-input").forEach(checkbox => {
+      if (checkbox.checked) {
+        const device_id = checkbox.getAttribute("device_id");
+        selectedDeviceIds.push(device_id)
+      }
+    })
+    fetch(`/plugins/contract/api/contracts/${contractId}/add_device/`, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie('csrftoken') 
+      },
+      body: JSON.stringify({ "device_ids": selectedDeviceIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message); 
+            location.reload();  
+        } else {
+            console.error("Error:", data.error);
+            alert(`Failed to add device: ${data.error}`);
+        }
+    })
+  })
 
   // Remove device from contract
   document.querySelectorAll(".remove-device-contract").forEach(btn => {
