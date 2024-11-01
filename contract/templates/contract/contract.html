@@ -140,7 +140,6 @@
   const filterSelectList = document.querySelector(".filter-select-list");
   const allDevices = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
   let selectedFilter;
-  let tempAllDevice;
   const activeFilters = [];
 
   function tableToExcel() {
@@ -165,7 +164,7 @@
     const index = activeFilters.findIndex(filter => filter.category === category && filter.value === value);
     activeFilters.splice(index, 1);  
     tag.remove(); 
-    filterTable();
+    filterTable(); 
   }
 
   function handleCreateTag(e) {
@@ -215,8 +214,6 @@
       });
 
       row.style.display = isVisible ? "" : "none";
-      tempAllDevice = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
-      console.log(tempAllDevice);
     });
   }
 

@@ -1,20 +1,11 @@
 from django import forms
-from netbox.forms import (
-  NetBoxModelForm, 
-  NetBoxModelFilterSetForm,
-)
+from netbox.forms import NetBoxModelForm, NetBoxModelFilterSetForm
 from .models import Contract, Supplier
-from utilities.forms.fields import (
-  CommentField, 
-  DynamicModelChoiceField, 
-  DynamicModelMultipleChoiceField, 
-  SlugField,
-)
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.widgets import DatePicker
 from tenancy.models import Tenant
 from dcim.models import Device
 from tenancy.models import Tenant
-from .models import StatusChoice
 
 class ContractForm(NetBoxModelForm):
   comments = CommentField()
@@ -53,17 +44,3 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
     queryset=Supplier.objects.all(),
     required=False
   )
-  
-  class Meta:
-    model = Device
-    fields = [
-      'name',
-      'status',
-      'tenant',
-      'site',
-      'location',
-      'rack',
-      'role',
-      'manufacturer',
-      'type',
-    ]
