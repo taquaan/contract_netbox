@@ -51,9 +51,6 @@
           <button class="btn btn-ghost-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
             <span class="mdi mdi-plus-thick"></span> Add a Device
           </button>
-          <button class="btn btn-ghost-cyan btn-sm me-2">
-            <span class="mdi mdi-import"></span> Import
-          </button>
           <button class="btn btn-ghost-purple btn-sm" onclick="tableToExcel()">
             <span class="mdi mdi-download"></span> Export
           </button>
@@ -143,6 +140,7 @@
   const filterSelectList = document.querySelector(".filter-select-list");
   const allDevices = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
   let selectedFilter;
+  let tempAllDevice;
   const activeFilters = [];
 
   function tableToExcel() {
@@ -167,7 +165,7 @@
     const index = activeFilters.findIndex(filter => filter.category === category && filter.value === value);
     activeFilters.splice(index, 1);  
     tag.remove(); 
-    filterTable(); 
+    filterTable();
   }
 
   function handleCreateTag(e) {
@@ -217,6 +215,8 @@
       });
 
       row.style.display = isVisible ? "" : "none";
+      tempAllDevice = document.querySelectorAll(".all-devices-table .table-container table tbody tr");
+      console.log(tempAllDevice);
     });
   }
 
